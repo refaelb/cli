@@ -1,0 +1,32 @@
+name: refael
+replicaCount: 1
+images:
+  PullSecrets:
+  - rabazhub
+  repository: rabazhub.azurecr.io/values-test
+  tag: latest
+config:name: testname
+config:
+  configmaps: []
+  env:
+  - name: MESSAGE
+    value: did work
+service:
+  type: ClusterIP
+  ports:
+  - name: testname
+    port: 3000
+  - name: http
+    port: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+ingress:
+  enabled: true
+  hosts:
+  - host: test-cd.branch-yesodot.org
+    paths:
+    - path: /message
+      service: testname
+      port: '3000'
