@@ -1,21 +1,23 @@
+
 environments:
-  dev: null
-  prod: null
+  dev:
+  prod:
+
 repositories:
 - name: yesodot
   url: https://harborreg-2.northeurope.cloudapp.azure.com/chartrepo/library
-  username:
-    requiredEnv "HARBOR_USER": null
-  password:
-    requiredEnv "HARBOR_PASSWORD": null
+  username: { requiredEnv "HARBOR_USER" }
+  password: { requiredEnv "HARBOR_PASSWORD" }
+  
 releases:
-- name: yesodot-service
-  namespace: test
+- name: wq
+  namespace: wq
   chart: yesodot/common
-  version:
-    requiredEnv "COMMON_VERSION" | default "0.5.2": null
+  version: { requiredEnv "COMMON_VERSION" | default "0.5.2" }
   values:
-  - ./values.yaml
+    - ./values.yaml
+
 helmDefaults:
   recreatePods: true
   createNamespace: true
+    

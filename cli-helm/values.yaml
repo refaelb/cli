@@ -1,20 +1,23 @@
-name: refael
+
+name: wq
+#fullname:
 replicaCount: 1
+
 images:
-  PullSecrets:
-  - rabazhub
-  repository: rabazhub.azurecr.io/values-test
+  PullSecrets: wq
+  repository: wq
   tag: latest
-config:name: testname
+
 config:
   configmaps: []
   env:
   - name: MESSAGE
-    value: did work
+    value: 'did work'
+
 service:
   type: ClusterIP
   ports:
-  - name: testname
+  - name: wq
     port: 3000
   - name: http
     port: 80
@@ -22,11 +25,13 @@ service:
   - name: https
     port: 443
     targetPort: 443
+
 ingress:
-  enabled: true
+  enabled: False
   hosts:
-  - host: test-cd.branch-yesodot.org
+  - host: nun
     paths:
-    - path: /message
-      service: testname
-      port: '3000'
+      - path: nun
+        service: wq
+        port: 3000
+    
