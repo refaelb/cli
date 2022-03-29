@@ -1,0 +1,31 @@
+
+name: q
+#fullname:
+replicacounts: 1
+
+images:
+  PullSecrets: q
+  repository: q
+  tag: latest
+
+config:
+  configmaps: []
+
+ingress:
+  enabled: False
+  hosts:
+  - host: nun
+    paths:
+      - path: nun
+        service: nun
+        port: nun
+
+service:
+  type: ClusterIP
+  ports: 
+  - name: q
+    port: 1
+    
+  - name: q
+    port: 2
+    

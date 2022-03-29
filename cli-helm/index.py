@@ -1,143 +1,113 @@
+from cgi import print_arguments
+from inspect import modulesbyfile
+from tkinter.messagebox import QUESTION
+from tokenize import Name
+from unicodedata import name
 import click
 import yaml
+import re
+import inquirer
 
 
-
-
-helmfile = """
-environments:
-  dev:
-  prod:
-
-repositories:
-- name: yesodot
-  url: https://harborreg-2.northeurope.cloudapp.azure.com/chartrepo/library
-  username: {{ requiredEnv "HARBOR_USER" }}
-  password: {{ requiredEnv "HARBOR_PASSWORD" }}
-  
-releases:
-- name: yesodot-service
-  namespace: {}
-  chart: yesodot/common
-  version: {{ requiredEnv "COMMON_VERSION" | default "0.5.2" }}
-  values:
-    - ./values.yaml
-
-helmDefaults:
-  recreatePods: true
-  createNamespace: true
-"""
 
 
 values = """
 name: {}
-# If you want to overide the full name you can include the 'fullnameOverride' value
 #fullname:
-replicaCount: 1
+replicacounts: {}
 
 images:
   PullSecrets: {}
   repository: {}
-  tag: "latest"
-
-config:name: "testname"
-# If you want to overide the full name you can include the 'fullnameOverride' value
-#fullname:
-replicaCount: 1
-
-images:
-  PullSecrets: ['rabazhub']
-  repository: rabazhub.azurecr.io/values-test
-  tag: "latest"
+  tag: {}
 
 config:
-  configmaps: []
-  env:
-  - name: MESSAGE
-    value: 'did work'
-
-service:
-  type: ClusterIP
-  ports:
-  - name: testname
-    port: 3000
-  - name: http
-    port: 80
-    protocol: TCP
-  - name: https
-    port: 443
-    targetPort: 443
-
-ingress:
-  enabled: true
-  hosts:
-  - host: test-cd.branch-yesodot.org
-    paths:
-      - path: /message
-        service: testname
-        port: "3000"
-  - name: {}
-    port: 3000
-  - name: http
-    port: 80
-    protocol: TCP
-  - name: https
-    port: 443
-    targetPort: 443
+  configmaps: {}
 
 ingress:
   enabled: {}
   hosts:
-  - host: test-cd.branch-yesodot.org
+  - host: {}
     paths:
-      - path: /message
-        service: testname
-        port: "3000"
-"""
+      - path: {}
+        service: {}
+        port: {}
 
-# name = 
-# ingress = 
-# pullsecret = 
-# repository = 
-# namespace = 
+service:
+  type: ClusterIP
+  ports: """
 
-# @click.command()
-# @click.argument('namespace', prompt='Your namespace.', default='guest')
-
-# @click.argument('--ingress', prompt='ingress :true or false.', default='guest')
-
-# @click.argument('--pullsecret', prompt='Your pullsecret.', default='guest')
-
-# @click.argument('--repositiry', prompt='Your repository.', default='guest')
-
-# @click.argument('--name', prompt='Your service name.', default='guest')
+dataService = """
+  - name: {}
+    port: {}
+    """
 
 
 @click.command()
-@click.option('--name', prompt='Your name',
-              help='The person to greet.')
-@click.option('--namespace', prompt='Your namespace',
-              help='The person to greet.')
-@click.option('--ingress', prompt='ingress: true or false',
-              help='The person to greet.')
-@click.option('--repo', prompt='Your repository',
-              help='The person to greet.')
-@click.option('--pullsecret', prompt='Your pullsecret',
-              help='The person to greet.')
-
-def hello(namespace , name, ingress, pullsecret, repo):
-    print (helmfile.format(namespace))
-    print (values.format(name, pullsecret,repo,name,ingress))
-    file = open("values.yaml","w+")
-    docs = yaml.load(values.format(name, pullsecret,repo,name,ingress))
-    yaml.dump(docs, file, sort_keys=False)
-    helmFile = open("helmfile.yaml","w+")
-    docs = yaml.load(helmfile.format(namespace))
-    yaml.dump(docs, helmFile, sort_keys=False)
+@click.option('--imagename', prompt='Your service name',help='The person to greet.')
+# @click.option('--namespace', prompt='Your namespace',help='The person to greet.')
+@click.option('--replicacount',default=1, prompt='count replica ',help='The person to greet.')
+@click.option('--pullsecret', prompt='Your pullsecret',help='The person to greet.')
+@click.option('--repo', prompt='Your repository',help='The person to greet.')
+@click.option('--tag', default="latest",prompt='tag to service',help='The person to greet.')
+@click.option('--configmap',default=[], prompt='Your configmap',help='The person to greet.')
+###service###
+@click.option('--counts',default=1, prompt='counts service',help='The person to greet.')
+###ingress###
+@click.option('--ingress', default=False, prompt='###ingress### \ningress: true or false',help='The person to greet.')
 
 
+def main(imagename, replicacount, pullsecret, repo, tag ,configmap, ingress,counts):
+    ingressfunc(imagename, replicacount, pullsecret, repo, tag ,configmap, ingress)
+    # write(imagename, replicacount, pullsecret, repo, tag ,configmap,ingress,myarray)
+    countfunc(imagename, counts)
 
+def ingressfunc( imagename, replicacount, pullsecret, repo, tag ,configmap, ingress):
+    print (ingress)
+    if ingress == True:
+        questions = [
+        inquirer.Text("ingresshost", message="host to ingress " ),
+        inquirer.Text("ingresspath", message="path in service to ingress?"),
+        inquirer.Text("ingressport", message="port in service to ingress " ),
+        inquirer.Text("ingressservice", message="service name to ingress" )
+    ]        
+        answers = inquirer.prompt(questions)
+        ingresshost = answers['ingresshost']
+        ingresspath = answers['ingresspath']
+        ingressport = answers['ingressport']
+        ingressservice = answers['ingressservice']
+    else:
+        ingress = False
+        ingresshost = "nun"
+        ingresspath = "nun"
+        ingressport = "nun"
+        ingressservice = "nun"
+    with open(imagename+'-values.yaml', 'w') as yfile:
+        yfile.write(values.format(imagename, replicacount, pullsecret, repo, tag ,configmap, ingress,ingresshost,ingresspath,ingressservice,ingressport))
+
+        # return ingress , ingresshost, ingresspath, ingressport , ingressservice
+
+def write(imagename, replicacount, pullsecret, repo, tag ,configmap, ingress,myarray):
+    with open(imagename+'-values.yaml', 'w') as yfile:
+        ingresspath = myarray[1]
+        ingressport = myarray[2]
+        ingresshost = myarray[3]
+        ingressservice = myarray[4]
+        yfile.write(values.format(imagename, replicacount, pullsecret, repo, tag ,configmap, ingress,ingresshost,ingresspath,ingressservice,ingressport))
+
+def countfunc (imagename, counts):
+    for i in range(counts):
+      questions = [
+      inquirer.Text("name", message="service name"),
+      inquirer.Text("port", message="service port" )
+  ]
+      answers = inquirer.prompt(questions)
+      name = answers['name']
+      port = answers['port']
+      with open(imagename+'-values.yaml', 'a') as yfile:
+        yfile.write(dataService.format(name, port))
 
 
 if __name__ == '__main__':
-    hello()
+    main()
+    ()
