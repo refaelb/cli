@@ -1,0 +1,37 @@
+
+name: <built-in function name>
+#fullname:
+replicacounts: 1
+
+images:
+  PullSecrets: test
+  repository: a
+  tag: latest
+
+config:
+  configmaps: []
+  env:
+  - name: MESSAGE
+    value: 'did work'
+
+ingress:
+  enabled: False
+  hosts:
+  - host: nun
+    paths:
+      - path: nun
+        service: nun
+        port: nun
+    
+service:
+  type: ClusterIP
+  ports:
+  - name: ew
+    port: 1
+    
+service:
+  type: ClusterIP
+  ports:
+  - name: ew
+    port: 2
+    
