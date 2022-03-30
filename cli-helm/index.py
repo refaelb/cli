@@ -1,5 +1,6 @@
 from cgi import print_arguments
 from inspect import modulesbyfile
+from multiprocessing.managers import Namespace
 from tkinter.messagebox import QUESTION
 from tokenize import Name
 from unicodedata import name
@@ -44,6 +45,32 @@ dataingress = """
         service: {}
         port: {}
 """
+
+
+helmFile = """
+environments:
+  dev:
+  prod:
+repositories:
+- name: yesodot
+  url: https://harborreg-2.northeurope.cloudapp.azure.com/chartrepo/library
+  username: {{ requiredEnv "HARBOR_USER" }}
+  password: {{ requiredEnv "HARBOR_PASSWORD" }}
+  
+releases:
+- name: {}
+  namespace: {}
+  chart: yesodot/common
+  version: {{ requiredEnv "COMMON_VERSION" | default "0.5.2" }}
+  values:
+    - ./values.yaml
+helmDefaults:
+  recreatePods: true
+  createNamespace: {}
+"""
+
+
+
 def writhBlockValues(imagename, replicacount, pullsecret, repo, tag ,configmap):
     with open(imagename+'-values.yaml', 'w') as yfile:
         yfile.write(values.format(imagename, replicacount, pullsecret, repo, tag ,configmap))
@@ -55,7 +82,7 @@ def serviceWriteStatic(dataservice, imagename):
 def serviceCountFunc (imagename, counts):
     for i in range(counts):
       questions = [
-      inquirer.Text("name", message="service name",default="http"),
+      inquirer.Text("name", message="service name",default="http  "),
       inquirer.Text("port", message="service port" ,default=80)]
       answers = inquirer.prompt(questions)
       name = answers['name']
@@ -90,7 +117,16 @@ def writeIngressBlock2(imagename, dataingress,numberpath):
       with open(imagename+'-values.yaml', 'a') as yfile:
           yfile.write(dataingress.format(ingresspath, ingressservice, ingressport))
 
-
+def createHelmFile(imagename, helmFile):
+    questions = [
+    inquirer.Text("name_space", message="your namespace " ),
+    inquirer.Text("create_name_space", message="to create namepace  ", default=False )
+    ]        
+    answers = inquirer.prompt(questions)
+    namespace = answers['name_space']
+    createNamespace = answers['create_name_space']
+    with open(imagename+'-helmfile.yaml', 'w') as yfile:
+        yfile.write(helmFile.format(imagename, namespace, createNamespace))
 
 @click.command()
 @click.option('--imagename', prompt='Your service name',help='The person to greet.')
@@ -115,6 +151,7 @@ def main(imagename, replicacount, pullsecret, repo, tag ,configmap, ingress,coun
     serviceCountFunc(imagename, counts)
     writeIngerssBlock1(imagename, ingress)
     writeIngressBlock2(imagename, dataingress, numberpath)
+    createHelmFile(imagename, helmFile)
 
 
 if __name__ == '__main__':
