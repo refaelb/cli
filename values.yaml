@@ -38,3 +38,6 @@ service:
   - name: 1
     port: 1
     
+service:
+  type: ClusterIP
+  ports: 

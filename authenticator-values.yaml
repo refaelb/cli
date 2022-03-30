@@ -1,37 +1,29 @@
 
 name: authenticator
 #fullname:
-replicacounts: 3
+replicacounts: 2
 
 images:
-  PullSecrets: mysecret
-  repository: harbor/repo/tory
+  PullSecrets: my-secret
+  repository: harbor/my/image
   tag: latest
 
 config:
-  configmaps: configmap1, configmap2
-  env:
-  - name: MESSAGE
-    value: 'did work'
+  configmaps: conf1, conf2
 
 ingress:
   enabled: True
   hosts:
-  - host: myhost.com
+  - host: /auth
     paths:
-      - path: /auth
-        service: service
+    - path: /auth
+        service: auth
         port: 3000
-    
+
+    - path: /auth2
+        service: auth
+        port: 3000
+
 service:
   type: ClusterIP
-  ports:
-  - name: service
-    port: 3000
-    
-
-  type: ClusterIP
-  ports:
-  - name: service2
-    port: 3001
-    
+  ports: 

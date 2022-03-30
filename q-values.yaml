@@ -12,20 +12,24 @@ config:
   configmaps: []
 
 ingress:
-  enabled: False
+  enabled: True
   hosts:
-  - host: nun
+  - host: ew
     paths:
-      - path: nun
-        service: nun
-        port: nun
+    - path: ewq
+        service: ewq
+        port: ewq
+
+    - path: eq
+        service: ew
+        port: ew
 
 service:
   type: ClusterIP
   ports: 
-  - name: q
-    port: 1
+  - name: sw
+    port: 32
     
-  - name: q
-    port: 2
+  - name: sw
+    port: 43
     
