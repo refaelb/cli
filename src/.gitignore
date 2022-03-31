@@ -1,0 +1,7 @@
+env/
+*.yaml
+build/
+__pycache__/
+dist/
+env/
+.git
